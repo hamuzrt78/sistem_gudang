@@ -70,7 +70,7 @@ class DatabaseSeeder extends Seeder
             'stok_minimum' => 5,
             'lokasi_rak'   => 'Rak B-02',
             'deskripsi'    => 'Processor AMD Ryzen 7 9800X3D AM5, 3D V-Cache Technology',
-            'harga' => 7500000,
+            'harga' => 7300000,
         ]);
 
         $intelCore = Item::create([
