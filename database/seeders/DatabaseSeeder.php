@@ -70,6 +70,7 @@ class DatabaseSeeder extends Seeder
             'stok_minimum' => 5,
             'lokasi_rak'   => 'Rak B-02',
             'deskripsi'    => 'Processor AMD Ryzen 7 9800X3D AM5, 3D V-Cache Technology',
+            'harga' => 7500000,
         ]);
 
         $intelCore = Item::create([
@@ -80,6 +81,7 @@ class DatabaseSeeder extends Seeder
             'stok_minimum' => 3,
             'lokasi_rak'   => 'Rak B-03',
             'deskripsi'    => 'Processor Intel Core i7-14700K LGA1700',
+            'harga' => 6800000,
         ]);
 
         // --- VGA ---
@@ -91,6 +93,7 @@ class DatabaseSeeder extends Seeder
             'stok_minimum' => 5,
             'lokasi_rak'   => 'Rak A-01',
             'deskripsi'    => 'VGA RTX 5070 GDDR7 12GB, DLSS 4, Ray Tracing',
+            'harga' => 15000000,
         ]);
 
         $rtx4080 = Item::create([
@@ -101,6 +104,7 @@ class DatabaseSeeder extends Seeder
             'stok_minimum' => 3,
             'lokasi_rak'   => 'Rak A-02',
             'deskripsi'    => 'VGA RTX 4080 Super GDDR6X 16GB',
+            'harga' => 30000000,
         ]);
 
         // --- Motherboard ---
@@ -112,6 +116,7 @@ class DatabaseSeeder extends Seeder
             'stok_minimum' => 2,
             'lokasi_rak'   => 'Rak D-01',
             'deskripsi'    => 'Motherboard AMD AM5, DDR5, PCIe 5.0',
+            'harga' => 8200000,
         ]);
 
         // --- RAM ---
@@ -123,6 +128,7 @@ class DatabaseSeeder extends Seeder
             'stok_minimum' => 8,
             'lokasi_rak'   => 'Rak E-01',
             'deskripsi'    => 'RAM DDR5 16GB 5200MHz CL40',
+            'harga' => 1500000,
         ]);
 
         $ramCorsair = Item::create([
@@ -133,6 +139,7 @@ class DatabaseSeeder extends Seeder
             'stok_minimum' => 5, // also critically low
             'lokasi_rak'   => 'Rak E-02',
             'deskripsi'    => 'RAM DDR5 32GB 6000MHz CL36 Kit (2x16GB)',
+            'harga' => 2800000,
         ]);
 
         // --- Storage ---
@@ -144,6 +151,7 @@ class DatabaseSeeder extends Seeder
             'stok_minimum' => 10,
             'lokasi_rak'   => 'Rak C-01',
             'deskripsi'    => 'SSD NVMe M.2 PCIe 4.0, Read 7450MB/s',
+            'harga' => 2200000,
         ]);
 
         $hddWD = Item::create([
@@ -154,6 +162,7 @@ class DatabaseSeeder extends Seeder
             'stok_minimum' => 5,
             'lokasi_rak'   => 'Rak C-02',
             'deskripsi'    => 'HDD 3.5 inch SATA 5400RPM',
+            'harga' => 800000,
         ]);
 
         // --- Periferal ---
@@ -165,6 +174,7 @@ class DatabaseSeeder extends Seeder
             'stok_minimum' => 4,
             'lokasi_rak'   => 'Rak F-01',
             'deskripsi'    => 'Keyboard Mekanikal TKL, RGB, Switch Red',
+            'harga' => 700000,
         ]);
 
         $mouse = Item::create([
@@ -175,6 +185,7 @@ class DatabaseSeeder extends Seeder
             'stok_minimum' => 5,
             'lokasi_rak'   => 'Rak F-02',
             'deskripsi'    => 'Mouse Gaming wired, sensor HERO 25K, 11 tombol',
+            'harga' => 3500000,
         ]);
 
         $monitor = Item::create([
@@ -185,6 +196,7 @@ class DatabaseSeeder extends Seeder
             'stok_minimum' => 2,
             'lokasi_rak'   => 'Rak F-03',
             'deskripsi'    => 'Monitor 27 inch QHD 165Hz IPS 1ms',
+            'harga' => 12000000,
         ]);
 
         // --- PC Gaming ---
@@ -196,6 +208,7 @@ class DatabaseSeeder extends Seeder
             'stok_minimum' => 2,
             'lokasi_rak'   => 'Rak G-01',
             'deskripsi'    => 'Ryzen 5 + RTX 3060 + 16GB DDR4 + SSD 512GB',
+            'harga' => 20000000,
         ]);
 
         $pcMidRange = Item::create([
@@ -206,6 +219,7 @@ class DatabaseSeeder extends Seeder
             'stok_minimum' => 1,
             'lokasi_rak'   => 'Rak G-02',
             'deskripsi'    => 'Ryzen 7 + RTX 4070 + 32GB DDR5 + SSD 1TB',
+            'harga' => 45000000,
         ]);
 
         $pcHighEnd = Item::create([
@@ -216,6 +230,7 @@ class DatabaseSeeder extends Seeder
             'stok_minimum' => 1,
             'lokasi_rak'   => 'Rak G-03',
             'deskripsi'    => 'Ryzen 9 + RTX 5070 + 64GB DDR5 + SSD 2TB NVMe',
+            'harga' => 45000000,
         ]);
 
         // ========================
