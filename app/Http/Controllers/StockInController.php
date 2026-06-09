@@ -34,15 +34,19 @@ class StockInController extends Controller
         $data = $request->validated();
 
         try {
-            StockIn::create([
-                'item_id'       => $data['item_id'],
-                'jumlah'        => $data['jumlah'],
-                'tanggal_masuk' => $data['tanggal_masuk'],
-                'supplier'      => $data['supplier'] ?? null,
-                'keterangan'    => $data['keterangan'] ?? null,
-                'user_id'       => $request->user()->id,
-                'status'        => 'pending_superadmin',
-            ]);
+            DB::transaction(function () use ($data, $request) {
+                foreach ($data['items'] as $itemData) {
+                    StockIn::create([
+                        'item_id'       => $itemData['item_id'],
+                        'jumlah'        => $itemData['jumlah'],
+                        'tanggal_masuk' => $data['tanggal_masuk'],
+                        'supplier'      => $data['supplier'] ?? null,
+                        'keterangan'    => $data['keterangan'] ?? null,
+                        'user_id'       => $request->user()->id,
+                        'status'        => 'pending_superadmin',
+                    ]);
+                }
+            });
 
             return redirect()->route('stock-ins.index')->with('success', 'Permintaan Barang Masuk berhasil diajukan. Menunggu persetujuan Superadmin.');
         } catch (\Exception $e) {

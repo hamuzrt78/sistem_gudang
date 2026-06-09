@@ -19,7 +19,11 @@ class ApprovalController extends Controller
     {
         $pendingIns  = StockIn::with('item', 'user')->where('status', 'pending_superadmin')->latest()->get();
         $pendingOuts = StockOut::with('item', 'user')->where('status', 'pending_superadmin')->latest()->get();
-        return view('approvals.superadmin', compact('pendingIns', 'pendingOuts'));
+        
+        $historyIns  = StockIn::with('item', 'user')->where('status', '!=', 'pending_superadmin')->latest()->paginate(5, ['*'], 'page_in');
+        $historyOuts = StockOut::with('item', 'user')->where('status', '!=', 'pending_superadmin')->latest()->paginate(5, ['*'], 'page_out');
+        
+        return view('approvals.superadmin', compact('pendingIns', 'pendingOuts', 'historyIns', 'historyOuts'));
     }
 
     public function superadminApproveIn(StockIn $stockIn)
@@ -66,7 +70,11 @@ class ApprovalController extends Controller
     {
         $pendingIns  = StockIn::with('item', 'user')->where('status', 'pending_pimpinan')->latest()->get();
         $pendingOuts = StockOut::with('item', 'user')->where('status', 'pending_pimpinan')->latest()->get();
-        return view('approvals.pimpinan', compact('pendingIns', 'pendingOuts'));
+        
+        $historyIns  = StockIn::with('item', 'user')->whereIn('status', ['approved', 'rejected'])->latest()->paginate(5, ['*'], 'page_in');
+        $historyOuts = StockOut::with('item', 'user')->whereIn('status', ['approved', 'rejected'])->latest()->paginate(5, ['*'], 'page_out');
+        
+        return view('approvals.pimpinan', compact('pendingIns', 'pendingOuts', 'historyIns', 'historyOuts'));
     }
 
     public function pimpinanApproveIn(StockIn $stockIn)

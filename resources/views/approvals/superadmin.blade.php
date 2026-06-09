@@ -48,16 +48,16 @@
                         <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate font-medium">{{ $in->keterangan ?? '-' }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-center">
                             <div class="flex items-center justify-center gap-2">
-                                <form action="{{ route('approvals.superadmin.in.approve', $in->id) }}" method="POST">
+                                <form action="{{ route('approvals.superadmin.in.approve', $in->id) }}" method="POST" onsubmit="confirmAction(event, 'Teruskan pengajuan ini ke Pimpinan?')">
                                     @csrf
-                                    <button type="submit" onclick="return confirm('Teruskan pengajuan ini ke Pimpinan?')" class="bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold px-3.5 py-2 rounded-lg transition-colors duration-150 shadow-sm inline-flex items-center gap-1">
+                                    <button type="submit" class="bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold px-3.5 py-2 rounded-lg transition-colors duration-150 shadow-sm inline-flex items-center gap-1">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                         Teruskan
                                     </button>
                                 </form>
-                                <form action="{{ route('approvals.superadmin.in.reject', $in->id) }}" method="POST">
+                                <form action="{{ route('approvals.superadmin.in.reject', $in->id) }}" method="POST" onsubmit="confirmAction(event, 'Tolak pengajuan ini?')">
                                     @csrf
-                                    <button type="submit" onclick="return confirm('Tolak pengajuan ini?')" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold px-3.5 py-2 rounded-lg transition-colors duration-150 shadow-sm inline-flex items-center gap-1">
+                                    <button type="submit" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold px-3.5 py-2 rounded-lg transition-colors duration-150 shadow-sm inline-flex items-center gap-1">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                         Tolak
                                     </button>
@@ -121,16 +121,16 @@
                         <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate font-medium">{{ $out->keterangan ?? '-' }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-center">
                             <div class="flex items-center justify-center gap-2">
-                                <form action="{{ route('approvals.superadmin.out.approve', $out->id) }}" method="POST">
+                                <form action="{{ route('approvals.superadmin.out.approve', $out->id) }}" method="POST" onsubmit="confirmAction(event, 'Teruskan pengajuan ini ke Pimpinan?')">
                                     @csrf
-                                    <button type="submit" onclick="return confirm('Teruskan pengajuan ini ke Pimpinan?')" class="bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold px-3.5 py-2 rounded-lg transition-colors duration-150 shadow-sm inline-flex items-center gap-1">
+                                    <button type="submit" class="bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold px-3.5 py-2 rounded-lg transition-colors duration-150 shadow-sm inline-flex items-center gap-1">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                         Teruskan
                                     </button>
                                 </form>
-                                <form action="{{ route('approvals.superadmin.out.reject', $out->id) }}" method="POST">
+                                <form action="{{ route('approvals.superadmin.out.reject', $out->id) }}" method="POST" onsubmit="confirmAction(event, 'Tolak pengajuan ini?')">
                                     @csrf
-                                    <button type="submit" onclick="return confirm('Tolak pengajuan ini?')" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold px-3.5 py-2 rounded-lg transition-colors duration-150 shadow-sm inline-flex items-center gap-1">
+                                    <button type="submit" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold px-3.5 py-2 rounded-lg transition-colors duration-150 shadow-sm inline-flex items-center gap-1">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                         Tolak
                                     </button>
@@ -150,5 +150,168 @@
             </table>
         </div>
     </div>
+
+    <!-- ============ RIWAYAT BARANG MASUK ============ -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mt-8">
+        <div class="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white flex flex-wrap gap-4 items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="bg-gray-100 p-2.5 rounded-lg text-gray-700">
+                    <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <div>
+                    <h2 class="text-base font-bold text-gray-800">Riwayat Approval Barang Masuk</h2>
+                    <p class="text-xs text-gray-500 font-medium">Daftar pengajuan yang sudah diproses</p>
+                </div>
+            </div>
+            <span class="bg-gray-100 text-gray-700 border border-gray-200 text-xs font-bold px-3 py-1 rounded-full shadow-sm">{{ $historyIns->count() }} Riwayat</span>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-100">
+                <thead class="bg-gray-50/80">
+                    <tr>
+                        <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Tanggal</th>
+                        <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Barang</th>
+                        <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Jumlah</th>
+                        <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Harga Total</th>
+                        <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Supplier</th>
+                        <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Diajukan Oleh</th>
+                        <th class="px-6 py-3.5 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-100">
+                    @forelse($historyIns as $in)
+                    <tr class="hover:bg-gray-50/50 transition-colors duration-150">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-medium">{{ $in->tanggal_masuk }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{{ $in->item->nama_barang ?? '-' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-emerald-600 font-bold">+{{ $in->jumlah }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-bold">Rp {{ number_format(($in->item->harga ?? 0) * $in->jumlah, 0, ',', '.') }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-medium">{{ $in->supplier ?? '-' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-medium">{{ $in->user->name ?? '-' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                            @if($in->status === 'approved')
+                                <span class="bg-emerald-100 text-emerald-700 text-xs px-2.5 py-1 rounded-md font-semibold">Approved</span>
+                            @elseif($in->status === 'rejected')
+                                <span class="bg-rose-100 text-rose-700 text-xs px-2.5 py-1 rounded-md font-semibold">Rejected</span>
+                            @elseif($in->status === 'pending_pimpinan')
+                                <span class="bg-blue-100 text-blue-700 text-xs px-2.5 py-1 rounded-md font-semibold">Menunggu Pimpinan</span>
+                            @else
+                                <span class="bg-gray-100 text-gray-700 text-xs px-2.5 py-1 rounded-md font-semibold">{{ $in->status }}</span>
+                            @endif
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="7" class="px-6 py-12 text-center text-gray-400">
+                            <p class="font-medium text-gray-500">Belum ada riwayat persetujuan.</p>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+        
+        @if($historyIns->hasPages())
+        <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/50">
+            {{ $historyIns->appends(request()->except('page_in'))->links() }}
+        </div>
+        @endif
+    </div>
+
+    <!-- ============ RIWAYAT BARANG KELUAR ============ -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mt-8">
+        <div class="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white flex flex-wrap gap-4 items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="bg-gray-100 p-2.5 rounded-lg text-gray-700">
+                    <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <div>
+                    <h2 class="text-base font-bold text-gray-800">Riwayat Approval Barang Keluar</h2>
+                    <p class="text-xs text-gray-500 font-medium">Daftar pengajuan yang sudah diproses</p>
+                </div>
+            </div>
+            <span class="bg-gray-100 text-gray-700 border border-gray-200 text-xs font-bold px-3 py-1 rounded-full shadow-sm">{{ $historyOuts->count() }} Riwayat</span>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-100">
+                <thead class="bg-gray-50/80">
+                    <tr>
+                        <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Tanggal</th>
+                        <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Barang</th>
+                        <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Jumlah</th>
+                        <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Harga Total</th>
+                        <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Tujuan</th>
+                        <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Diajukan Oleh</th>
+                        <th class="px-6 py-3.5 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-100">
+                    @forelse($historyOuts as $out)
+                    <tr class="hover:bg-gray-50/50 transition-colors duration-150">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-medium">{{ $out->tanggal_keluar }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{{ $out->item->nama_barang ?? '-' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-rose-600 font-bold">-{{ $out->jumlah }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-bold">Rp {{ number_format(($out->item->harga ?? 0) * $out->jumlah, 0, ',', '.') }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-medium">{{ $out->tujuan ?? '-' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-medium">{{ $out->user->name ?? '-' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                            @if($out->status === 'approved')
+                                <span class="bg-emerald-100 text-emerald-700 text-xs px-2.5 py-1 rounded-md font-semibold">Approved</span>
+                            @elseif($out->status === 'rejected')
+                                <span class="bg-rose-100 text-rose-700 text-xs px-2.5 py-1 rounded-md font-semibold">Rejected</span>
+                            @elseif($out->status === 'pending_pimpinan')
+                                <span class="bg-blue-100 text-blue-700 text-xs px-2.5 py-1 rounded-md font-semibold">Menunggu Pimpinan</span>
+                            @else
+                                <span class="bg-gray-100 text-gray-700 text-xs px-2.5 py-1 rounded-md font-semibold">{{ $out->status }}</span>
+                            @endif
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="7" class="px-6 py-12 text-center text-gray-400">
+                            <p class="font-medium text-gray-500">Belum ada riwayat persetujuan.</p>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+        
+        @if($historyOuts->hasPages())
+        <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/50">
+            {{ $historyOuts->appends(request()->except('page_out'))->links() }}
+        </div>
+        @endif
+    </div>
 </div>
+
+@push('scripts')
+<script>
+function confirmAction(event, message) {
+    event.preventDefault();
+    const form = event.target;
+    
+    Swal.fire({
+        title: 'Konfirmasi Approval',
+        text: message,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#0d9488',
+        cancelButtonColor: '#e11d48',
+        confirmButtonText: 'Ya, Lanjutkan',
+        cancelButtonText: 'Batal',
+        customClass: {
+            popup: 'rounded-2xl',
+            confirmButton: 'rounded-xl px-5 py-2.5 text-sm font-semibold shadow-sm',
+            cancelButton: 'rounded-xl px-5 py-2.5 text-sm font-semibold shadow-sm'
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            form.submit();
+        }
+    });
+}
+</script>
+@endpush
 @endsection

@@ -17,6 +17,43 @@
         <div id="stockChart" class="h-72 w-full"></div>
     </div>
 
+    @if(auth()->user()->role === 'pimpinan')
+    <!-- Menunggu Approval -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 overflow-hidden">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-800">Menunggu Approval</h3>
+            <span class="bg-amber-100 text-amber-600 text-xs font-bold px-2 py-1 rounded-full">{{ $pendingInsPimpinan->count() + $pendingOutsPimpinan->count() }} Item</span>
+        </div>
+        <div class="space-y-4 max-h-72 overflow-y-auto pr-2">
+            @forelse($pendingInsPimpinan as $in)
+                <div class="p-3 bg-amber-50 rounded-lg border border-amber-100 flex justify-between items-center">
+                    <div>
+                        <p class="font-medium text-gray-800 text-sm">Barang Masuk: {{ $in->item->nama_barang }}</p>
+                        <p class="text-xs text-gray-500">Jumlah: +{{ $in->jumlah }} (Oleh: {{ $in->user->name ?? '-' }})</p>
+                    </div>
+                    <a href="{{ route('approvals.pimpinan') }}" class="text-xs bg-amber-600 hover:bg-amber-700 text-white px-2.5 py-1.5 rounded-lg shadow-sm transition-colors font-medium">Lihat</a>
+                </div>
+            @empty
+            @endforelse
+            @forelse($pendingOutsPimpinan as $out)
+                <div class="p-3 bg-amber-50 rounded-lg border border-amber-100 flex justify-between items-center">
+                    <div>
+                        <p class="font-medium text-gray-800 text-sm">Barang Keluar: {{ $out->item->nama_barang }}</p>
+                        <p class="text-xs text-gray-500">Jumlah: -{{ $out->jumlah }} (Oleh: {{ $out->user->name ?? '-' }})</p>
+                    </div>
+                    <a href="{{ route('approvals.pimpinan') }}" class="text-xs bg-amber-600 hover:bg-amber-700 text-white px-2.5 py-1.5 rounded-lg shadow-sm transition-colors font-medium">Lihat</a>
+                </div>
+            @empty
+            @endforelse
+            @if($pendingInsPimpinan->isEmpty() && $pendingOutsPimpinan->isEmpty())
+                <div class="text-center py-8 text-gray-500">
+                    <svg class="w-12 h-12 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <p>Tidak ada transaksi yang menunggu persetujuan.</p>
+                </div>
+            @endif
+        </div>
+    </div>
+    @else
     <!-- Peringatan Stok -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 overflow-hidden">
         <div class="flex items-center justify-between mb-4">
@@ -45,6 +82,7 @@
             @endforelse
         </div>
     </div>
+    @endif
 </div>
 
 <!-- Aktivitas Terbaru -->

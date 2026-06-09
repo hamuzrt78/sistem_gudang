@@ -14,8 +14,9 @@ class StockOutRequest extends FormRequest
     public function rules()
     {
         return [
-            'item_id' => 'required|exists:items,id',
-            'jumlah' => 'required|integer|min:1',
+            'items' => 'required|array|min:1',
+            'items.*.item_id' => 'required|exists:items,id',
+            'items.*.jumlah' => 'required|integer|min:1',
             'tanggal_keluar' => 'required|date',
             'tujuan' => 'nullable|string|max:255',
             'keterangan' => 'nullable|string',

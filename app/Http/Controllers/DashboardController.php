@@ -30,6 +30,10 @@ class DashboardController extends Controller
             $outData[] = StockOut::whereDate('tanggal_keluar', $date)->sum('jumlah');
         }
 
+        // Pending approvals for pimpinan
+        $pendingInsPimpinan = StockIn::with('item', 'user')->where('status', 'pending_pimpinan')->latest()->get();
+        $pendingOutsPimpinan = StockOut::with('item', 'user')->where('status', 'pending_pimpinan')->latest()->get();
+
         return view('dashboard', compact(
             'totalBarang',
             'totalKategori',
@@ -39,7 +43,9 @@ class DashboardController extends Controller
             'aktivitasTerbaru',
             'dates',
             'inData',
-            'outData'
+            'outData',
+            'pendingInsPimpinan',
+            'pendingOutsPimpinan'
         ));
     }
 }

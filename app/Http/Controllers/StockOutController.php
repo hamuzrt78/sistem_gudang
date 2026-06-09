@@ -34,21 +34,25 @@ class StockOutController extends Controller
         $data = $request->validated();
 
         try {
-            $item = Item::findOrFail($data['item_id']);
+            DB::transaction(function () use ($data, $request) {
+                foreach ($data['items'] as $itemData) {
+                    $item = Item::lockForUpdate()->findOrFail($itemData['item_id']);
 
-            if ($item->stok < $data['jumlah']) {
-                return back()->withInput()->with('error', 'Stok tidak mencukupi untuk permintaan ini.');
-            }
+                    if ($item->stok < $itemData['jumlah']) {
+                        throw new \Exception("Stok {$item->nama_barang} tidak mencukupi untuk permintaan ini.");
+                    }
 
-            StockOut::create([
-                'item_id'       => $item->id,
-                'jumlah'        => $data['jumlah'],
-                'tanggal_keluar' => $data['tanggal_keluar'],
-                'tujuan'        => $data['tujuan'] ?? null,
-                'keterangan'    => $data['keterangan'] ?? null,
-                'user_id'       => $request->user()->id,
-                'status'        => 'pending_superadmin',
-            ]);
+                    StockOut::create([
+                        'item_id'       => $item->id,
+                        'jumlah'        => $itemData['jumlah'],
+                        'tanggal_keluar' => $data['tanggal_keluar'],
+                        'tujuan'        => $data['tujuan'] ?? null,
+                        'keterangan'    => $data['keterangan'] ?? null,
+                        'user_id'       => $request->user()->id,
+                        'status'        => 'pending_superadmin',
+                    ]);
+                }
+            });
 
             return redirect()->route('stock-outs.index')->with('success', 'Permintaan Barang Keluar berhasil diajukan. Menunggu persetujuan Superadmin.');
         } catch (\Exception $e) {
