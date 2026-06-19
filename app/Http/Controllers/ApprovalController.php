@@ -17,49 +17,35 @@ class ApprovalController extends Controller
 
     public function superadminIndex()
     {
-        $pendingIns  = StockIn::with('item', 'user')->where('status', 'pending_superadmin')->latest()->get();
-        $pendingOuts = StockOut::with('item', 'user')->where('status', 'pending_superadmin')->latest()->get();
+        $pendingPengajuans = \App\Models\Pengajuan::with(['user', 'stockIns.item', 'stockOuts.item'])
+                                ->where('status', 'pending_superadmin')
+                                ->latest()
+                                ->get();
         
-        $historyIns  = StockIn::with('item', 'user')->where('status', '!=', 'pending_superadmin')->latest()->paginate(5, ['*'], 'page_in');
-        $historyOuts = StockOut::with('item', 'user')->where('status', '!=', 'pending_superadmin')->latest()->paginate(5, ['*'], 'page_out');
+        $historyPengajuans = \App\Models\Pengajuan::with(['user', 'stockIns.item', 'stockOuts.item'])
+                                ->where('status', '!=', 'pending_superadmin')
+                                ->latest()
+                                ->paginate(10);
         
-        return view('approvals.superadmin', compact('pendingIns', 'pendingOuts', 'historyIns', 'historyOuts'));
+        return view('approvals.superadmin', compact('pendingPengajuans', 'historyPengajuans'));
     }
 
-    public function superadminApproveIn(StockIn $stockIn)
+    public function superadminApprove(\App\Models\Pengajuan $pengajuan)
     {
-        if ($stockIn->status !== 'pending_superadmin') {
+        if ($pengajuan->status !== 'pending_superadmin') {
             return back()->with('error', 'Status tidak valid untuk tindakan ini.');
         }
-        $stockIn->update(['status' => 'pending_pimpinan']);
-        return back()->with('success', 'Pengajuan Barang Masuk diteruskan ke Pimpinan.');
+        $pengajuan->update(['status' => 'pending_pimpinan']);
+        return back()->with('success', 'Pengajuan diteruskan ke Pimpinan.');
     }
 
-    public function superadminApproveOut(StockOut $stockOut)
+    public function superadminReject(\App\Models\Pengajuan $pengajuan)
     {
-        if ($stockOut->status !== 'pending_superadmin') {
+        if ($pengajuan->status !== 'pending_superadmin') {
             return back()->with('error', 'Status tidak valid untuk tindakan ini.');
         }
-        $stockOut->update(['status' => 'pending_pimpinan']);
-        return back()->with('success', 'Pengajuan Barang Keluar diteruskan ke Pimpinan.');
-    }
-
-    public function superadminRejectIn(StockIn $stockIn)
-    {
-        if ($stockIn->status !== 'pending_superadmin') {
-            return back()->with('error', 'Status tidak valid untuk tindakan ini.');
-        }
-        $stockIn->update(['status' => 'rejected']);
-        return back()->with('success', 'Pengajuan Barang Masuk telah ditolak.');
-    }
-
-    public function superadminRejectOut(StockOut $stockOut)
-    {
-        if ($stockOut->status !== 'pending_superadmin') {
-            return back()->with('error', 'Status tidak valid untuk tindakan ini.');
-        }
-        $stockOut->update(['status' => 'rejected']);
-        return back()->with('success', 'Pengajuan Barang Keluar telah ditolak.');
+        $pengajuan->update(['status' => 'rejected']);
+        return back()->with('success', 'Pengajuan telah ditolak.');
     }
 
     // =========================================================
@@ -68,99 +54,83 @@ class ApprovalController extends Controller
 
     public function pimpinanIndex()
     {
-        $pendingIns  = StockIn::with('item', 'user')->where('status', 'pending_pimpinan')->latest()->get();
-        $pendingOuts = StockOut::with('item', 'user')->where('status', 'pending_pimpinan')->latest()->get();
+        $pendingPengajuans = \App\Models\Pengajuan::with(['user', 'stockIns.item', 'stockOuts.item'])
+                                ->where('status', 'pending_pimpinan')
+                                ->latest()
+                                ->get();
         
-        $historyIns  = StockIn::with('item', 'user')->whereIn('status', ['approved', 'rejected'])->latest()->paginate(5, ['*'], 'page_in');
-        $historyOuts = StockOut::with('item', 'user')->whereIn('status', ['approved', 'rejected'])->latest()->paginate(5, ['*'], 'page_out');
+        $historyPengajuans = \App\Models\Pengajuan::with(['user', 'stockIns.item', 'stockOuts.item'])
+                                ->whereIn('status', ['approved', 'rejected'])
+                                ->latest()
+                                ->paginate(10);
         
-        return view('approvals.pimpinan', compact('pendingIns', 'pendingOuts', 'historyIns', 'historyOuts'));
+        return view('approvals.pimpinan', compact('pendingPengajuans', 'historyPengajuans'));
     }
 
-    public function pimpinanApproveIn(StockIn $stockIn)
+    public function pimpinanApprove(\App\Models\Pengajuan $pengajuan)
     {
-        if ($stockIn->status !== 'pending_pimpinan') {
+        if ($pengajuan->status !== 'pending_pimpinan') {
             return back()->with('error', 'Status tidak valid untuk tindakan ini.');
         }
 
         try {
-            DB::transaction(function () use ($stockIn) {
-                $item = Item::lockForUpdate()->find($stockIn->item_id);
-                $stokSebelum = $item->stok;
-                $item->stok += $stockIn->jumlah;
-                $item->save();
+            DB::transaction(function () use ($pengajuan) {
+                if ($pengajuan->tipe === 'in') {
+                    foreach ($pengajuan->stockIns as $stockIn) {
+                        $item = Item::lockForUpdate()->find($stockIn->item_id);
+                        $stokSebelum = $item->stok;
+                        $item->stok += $stockIn->jumlah;
+                        $item->save();
 
-                StockMutation::create([
-                    'item_id'      => $item->id,
-                    'tipe_mutasi'  => 'in',
-                    'jumlah'       => $stockIn->jumlah,
-                    'stok_sebelum' => $stokSebelum,
-                    'stok_sesudah' => $item->stok,
-                    'referensi'    => 'IN-' . str_pad($stockIn->id, 5, '0', STR_PAD_LEFT),
-                    'created_by'   => auth()->id(),
-                ]);
+                        StockMutation::create([
+                            'item_id'      => $item->id,
+                            'tipe_mutasi'  => 'in',
+                            'jumlah'       => $stockIn->jumlah,
+                            'stok_sebelum' => $stokSebelum,
+                            'stok_sesudah' => $item->stok,
+                            'referensi'    => $pengajuan->kode_pengajuan,
+                            'created_by'   => auth()->id(),
+                        ]);
+                    }
+                } else if ($pengajuan->tipe === 'out') {
+                    foreach ($pengajuan->stockOuts as $stockOut) {
+                        $item = Item::lockForUpdate()->find($stockOut->item_id);
 
-                $stockIn->update(['status' => 'approved']);
-            });
+                        if ($item->stok < $stockOut->jumlah) {
+                            throw new \Exception("Stok {$item->nama_barang} tidak mencukupi.");
+                        }
 
-            return back()->with('success', 'Barang Masuk disetujui. Stok barang telah bertambah.');
-        } catch (\Exception $e) {
-            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
-        }
-    }
+                        $stokSebelum = $item->stok;
+                        $item->stok -= $stockOut->jumlah;
+                        $item->save();
 
-    public function pimpinanApproveOut(StockOut $stockOut)
-    {
-        if ($stockOut->status !== 'pending_pimpinan') {
-            return back()->with('error', 'Status tidak valid untuk tindakan ini.');
-        }
-
-        try {
-            DB::transaction(function () use ($stockOut) {
-                $item = Item::lockForUpdate()->find($stockOut->item_id);
-
-                if ($item->stok < $stockOut->jumlah) {
-                    throw new \Exception('Stok tidak mencukupi untuk transaksi ini.');
+                        StockMutation::create([
+                            'item_id'      => $item->id,
+                            'tipe_mutasi'  => 'out',
+                            'jumlah'       => $stockOut->jumlah,
+                            'stok_sebelum' => $stokSebelum,
+                            'stok_sesudah' => $item->stok,
+                            'referensi'    => $pengajuan->kode_pengajuan,
+                            'created_by'   => auth()->id(),
+                        ]);
+                    }
                 }
 
-                $stokSebelum = $item->stok;
-                $item->stok -= $stockOut->jumlah;
-                $item->save();
-
-                StockMutation::create([
-                    'item_id'      => $item->id,
-                    'tipe_mutasi'  => 'out',
-                    'jumlah'       => $stockOut->jumlah,
-                    'stok_sebelum' => $stokSebelum,
-                    'stok_sesudah' => $item->stok,
-                    'referensi'    => 'OUT-' . str_pad($stockOut->id, 5, '0', STR_PAD_LEFT),
-                    'created_by'   => auth()->id(),
-                ]);
-
-                $stockOut->update(['status' => 'approved']);
+                $pengajuan->update(['status' => 'approved']);
             });
 
-            return back()->with('success', 'Barang Keluar disetujui. Stok barang telah berkurang.');
+            return back()->with('success', 'Pengajuan disetujui. Stok barang telah dimutasi.');
         } catch (\Exception $e) {
             return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
 
-    public function pimpinanRejectIn(StockIn $stockIn)
+    public function pimpinanReject(\App\Models\Pengajuan $pengajuan)
     {
-        if ($stockIn->status !== 'pending_pimpinan') {
+        if ($pengajuan->status !== 'pending_pimpinan') {
             return back()->with('error', 'Status tidak valid untuk tindakan ini.');
         }
-        $stockIn->update(['status' => 'rejected']);
-        return back()->with('success', 'Pengajuan Barang Masuk telah ditolak.');
-    }
-
-    public function pimpinanRejectOut(StockOut $stockOut)
-    {
-        if ($stockOut->status !== 'pending_pimpinan') {
-            return back()->with('error', 'Status tidak valid untuk tindakan ini.');
-        }
-        $stockOut->update(['status' => 'rejected']);
-        return back()->with('success', 'Pengajuan Barang Keluar telah ditolak.');
+        $pengajuan->update(['status' => 'rejected']);
+        return back()->with('success', 'Pengajuan telah ditolak.');
     }
 }

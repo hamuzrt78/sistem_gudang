@@ -56,19 +56,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Approval Level 1
         Route::get('/approvals/superadmin', [ApprovalController::class, 'superadminIndex'])->name('approvals.superadmin.index');
-        Route::post('/approvals/superadmin/stock-in/{stockIn}/approve', [ApprovalController::class, 'superadminApproveIn'])->name('approvals.superadmin.in.approve');
-        Route::post('/approvals/superadmin/stock-in/{stockIn}/reject', [ApprovalController::class, 'superadminRejectIn'])->name('approvals.superadmin.in.reject');
-        Route::post('/approvals/superadmin/stock-out/{stockOut}/approve', [ApprovalController::class, 'superadminApproveOut'])->name('approvals.superadmin.out.approve');
-        Route::post('/approvals/superadmin/stock-out/{stockOut}/reject', [ApprovalController::class, 'superadminRejectOut'])->name('approvals.superadmin.out.reject');
+        Route::post('/approvals/superadmin/pengajuan/{pengajuan}/approve', [ApprovalController::class, 'superadminApprove'])->name('approvals.superadmin.approve');
+        Route::post('/approvals/superadmin/pengajuan/{pengajuan}/reject', [ApprovalController::class, 'superadminReject'])->name('approvals.superadmin.reject');
     });
 
     // Pimpinan ONLY: Approval Level 2 (Final)
     Route::middleware(['role:pimpinan'])->group(function () {
         Route::get('/approvals/pimpinan', [ApprovalController::class, 'pimpinanIndex'])->name('approvals.pimpinan.index');
-        Route::post('/approvals/pimpinan/stock-in/{stockIn}/approve', [ApprovalController::class, 'pimpinanApproveIn'])->name('approvals.pimpinan.in.approve');
-        Route::post('/approvals/pimpinan/stock-in/{stockIn}/reject', [ApprovalController::class, 'pimpinanRejectIn'])->name('approvals.pimpinan.in.reject');
-        Route::post('/approvals/pimpinan/stock-out/{stockOut}/approve', [ApprovalController::class, 'pimpinanApproveOut'])->name('approvals.pimpinan.out.approve');
-        Route::post('/approvals/pimpinan/stock-out/{stockOut}/reject', [ApprovalController::class, 'pimpinanRejectOut'])->name('approvals.pimpinan.out.reject');
+        Route::post('/approvals/pimpinan/pengajuan/{pengajuan}/approve', [ApprovalController::class, 'pimpinanApprove'])->name('approvals.pimpinan.approve');
+        Route::post('/approvals/pimpinan/pengajuan/{pengajuan}/reject', [ApprovalController::class, 'pimpinanReject'])->name('approvals.pimpinan.reject');
     });
 });
 

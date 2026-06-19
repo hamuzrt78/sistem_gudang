@@ -8,7 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 class StockOut extends Model
 {
     use HasFactory;
-    protected $fillable = ['item_id', 'jumlah', 'tanggal_keluar', 'tujuan', 'keterangan', 'user_id', 'status'];
+    protected $fillable = ['pengajuan_id', 'item_id', 'jumlah', 'tanggal_keluar', 'tujuan', 'keterangan', 'user_id', 'status'];
+
+    public function pengajuan()
+    {
+        return $this->belongsTo(Pengajuan::class);
+    }
 
     public function item()
     {

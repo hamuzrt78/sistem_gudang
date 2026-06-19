@@ -168,7 +168,31 @@ php artisan migrate:fresh --seed
 
 ---
 
-## ▶️ Menjalankan Aplikasi
+## 🐳 Deployment (Docker)
+
+Jika Anda ingin melakukan *hosting* aplikasi ini ke server/VPS, Anda dapat menggunakan Docker Compose yang telah disediakan.
+
+### 1. Build & Run Container
+Gunakan terminal dan jalankan perintah berikut untuk mengunduh image dan mem-build aplikasi:
+```bash
+docker-compose up -d --build
+```
+
+### 2. Install Dependencies (Satu Kali Saja)
+Setelah container berjalan, jalankan setup dasar Laravel di dalam container:
+```bash
+# Install package PHP
+docker-compose exec app composer install --optimize-autoloader --no-dev
+
+# Generate key & migrasi database
+docker-compose exec app php artisan key:generate
+docker-compose exec app php artisan migrate:fresh --seed
+```
+Aplikasi kini berjalan di **http://localhost:8000** (atau IP server Anda) secara persisten.
+
+---
+
+## ▶️ Menjalankan Aplikasi (Lokal Non-Docker)
 
 Anda memerlukan **dua terminal** yang berjalan secara bersamaan:
 

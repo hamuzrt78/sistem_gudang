@@ -13,7 +13,7 @@ class StockOutController extends Controller
 {
     public function index()
     {
-        $outs = StockOut::with('item', 'user')->latest()->paginate(10);
+        $outs = \App\Models\Pengajuan::with('stockOuts.item', 'user')->where('tipe', 'out')->latest()->paginate(10);
         $items = Item::where('stok', '>', 0)->orderBy('nama_barang')->get();
         return view('stock_outs.index', compact('outs', 'items'));
     }
@@ -35,6 +35,25 @@ class StockOutController extends Controller
 
         try {
             DB::transaction(function () use ($data, $request) {
+                $prefix = 'KB-' . date('d-m-');
+                $lastPengajuan = \App\Models\Pengajuan::where('kode_pengajuan', 'like', $prefix . '%')->latest('id')->first();
+                $sequence = 1;
+                if ($lastPengajuan) {
+                    $lastSeq = (int) substr($lastPengajuan->kode_pengajuan, -3);
+                    $sequence = $lastSeq + 1;
+                }
+                $kodePengajuan = $prefix . str_pad($sequence, 3, '0', STR_PAD_LEFT);
+
+                $pengajuan = \App\Models\Pengajuan::create([
+                    'kode_pengajuan' => $kodePengajuan,
+                    'tipe' => 'out',
+                    'user_id' => $request->user()->id,
+                    'status' => 'pending_superadmin',
+                    'tanggal' => $data['tanggal_keluar'],
+                    'supplier_tujuan' => $data['tujuan'] ?? null,
+                    'keterangan_umum' => $data['keterangan'] ?? null,
+                ]);
+
                 foreach ($data['items'] as $itemData) {
                     $item = Item::lockForUpdate()->findOrFail($itemData['item_id']);
 
@@ -43,6 +62,7 @@ class StockOutController extends Controller
                     }
 
                     StockOut::create([
+                        'pengajuan_id'  => $pengajuan->id,
                         'item_id'       => $item->id,
                         'jumlah'        => $itemData['jumlah'],
                         'tanggal_keluar' => $data['tanggal_keluar'],
@@ -60,11 +80,11 @@ class StockOutController extends Controller
         }
     }
 
-    public function destroy(StockOut $stockOut)
+    public function destroy(\App\Models\Pengajuan $stockOut)
     {
         // Only allow deletion if still pending (not yet approved)
         if ($stockOut->status === 'approved') {
-            return back()->with('error', 'Transaksi yang sudah disetujui tidak bisa dihapus langsung.');
+            return back()->with('error', 'Pengajuan yang sudah disetujui tidak bisa dihapus langsung.');
         }
 
         try {

@@ -22,35 +22,31 @@
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 overflow-hidden">
         <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-semibold text-gray-800">Menunggu Approval</h3>
-            <span class="bg-amber-100 text-amber-600 text-xs font-bold px-2 py-1 rounded-full">{{ $pendingInsPimpinan->count() + $pendingOutsPimpinan->count() }} Item</span>
+            <span class="bg-amber-100 text-amber-600 text-xs font-bold px-2 py-1 rounded-full">{{ $pendingPengajuansPimpinan->count() }} Pengajuan</span>
         </div>
         <div class="space-y-4 max-h-72 overflow-y-auto pr-2">
-            @forelse($pendingInsPimpinan as $in)
+            @forelse($pendingPengajuansPimpinan as $pengajuan)
                 <div class="p-3 bg-amber-50 rounded-lg border border-amber-100 flex justify-between items-center">
                     <div>
-                        <p class="font-medium text-gray-800 text-sm">Barang Masuk: {{ $in->item->nama_barang }}</p>
-                        <p class="text-xs text-gray-500">Jumlah: +{{ $in->jumlah }} (Oleh: {{ $in->user->name ?? '-' }})</p>
+                        <p class="font-medium text-gray-800 text-sm">
+                            {{ $pengajuan->kode_pengajuan }}
+                            @if($pengajuan->tipe === 'in')
+                                <span class="text-xs font-bold text-emerald-600 ml-1">(Barang Masuk)</span>
+                            @else
+                                <span class="text-xs font-bold text-rose-600 ml-1">(Barang Keluar)</span>
+                            @endif
+                        </p>
+                        <p class="text-xs text-gray-500">Tanggal: {{ $pengajuan->tanggal }} (Oleh: {{ $pengajuan->user->name ?? '-' }})</p>
+                        <p class="text-xs text-gray-600 mt-1">Total: {{ $pengajuan->tipe === 'in' ? $pengajuan->stockIns->count() : $pengajuan->stockOuts->count() }} Macam Barang</p>
                     </div>
-                    <a href="{{ route('approvals.pimpinan') }}" class="text-xs bg-amber-600 hover:bg-amber-700 text-white px-2.5 py-1.5 rounded-lg shadow-sm transition-colors font-medium">Lihat</a>
+                    <a href="{{ route('approvals.pimpinan.index') }}" class="text-xs bg-amber-600 hover:bg-amber-700 text-white px-2.5 py-1.5 rounded-lg shadow-sm transition-colors font-medium">Lihat</a>
                 </div>
             @empty
-            @endforelse
-            @forelse($pendingOutsPimpinan as $out)
-                <div class="p-3 bg-amber-50 rounded-lg border border-amber-100 flex justify-between items-center">
-                    <div>
-                        <p class="font-medium text-gray-800 text-sm">Barang Keluar: {{ $out->item->nama_barang }}</p>
-                        <p class="text-xs text-gray-500">Jumlah: -{{ $out->jumlah }} (Oleh: {{ $out->user->name ?? '-' }})</p>
-                    </div>
-                    <a href="{{ route('approvals.pimpinan') }}" class="text-xs bg-amber-600 hover:bg-amber-700 text-white px-2.5 py-1.5 rounded-lg shadow-sm transition-colors font-medium">Lihat</a>
-                </div>
-            @empty
-            @endforelse
-            @if($pendingInsPimpinan->isEmpty() && $pendingOutsPimpinan->isEmpty())
                 <div class="text-center py-8 text-gray-500">
                     <svg class="w-12 h-12 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     <p>Tidak ada transaksi yang menunggu persetujuan.</p>
                 </div>
-            @endif
+            @endforelse
         </div>
     </div>
     @else

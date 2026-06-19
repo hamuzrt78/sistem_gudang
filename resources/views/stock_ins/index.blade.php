@@ -21,11 +21,9 @@
         <table class="min-w-full divide-y divide-gray-100">
             <thead class="bg-gray-50/80">
                 <tr>
+                    <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Kode</th>
                     <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Tanggal</th>
-                    <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Barang</th>
-                    <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Jumlah</th>
-                    <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Harga Satuan</th>
-                    <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Harga</th>
+                    <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Daftar Barang</th>
                     <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Supplier</th>
                     <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Diajukan Oleh</th>
                     <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
@@ -37,12 +35,16 @@
             <tbody class="bg-white divide-y divide-gray-100">
                 @forelse($ins as $in)
                 <tr class="hover:bg-teal-50/20 even:bg-gray-50/30 transition-colors duration-150">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-medium">{{ $in->tanggal_masuk }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{{ $in->item->nama_barang ?? '-' }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-emerald-600 font-bold">+{{ $in->jumlah }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">Rp {{ number_format($in->item->harga ?? 0, 0, ',', '.') }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-teal-700 font-bold">Rp {{ number_format(($in->item->harga ?? 0) * $in->jumlah, 0, ',', '.') }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-medium">{{ $in->supplier ?? '-' }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold">{{ $in->kode_pengajuan }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-medium">{{ $in->tanggal }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-700">
+                        <ul class="list-disc list-inside">
+                            @foreach($in->stockIns as $item)
+                                <li>{{ $item->item->nama_barang ?? '-' }} <span class="font-bold text-emerald-600">(+{{ $item->jumlah }})</span></li>
+                            @endforeach
+                        </ul>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-medium">{{ $in->supplier_tujuan ?? '-' }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-medium">{{ $in->user->name ?? '-' }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm">
                         @if($in->status === 'pending_superadmin')
@@ -73,7 +75,7 @@
                     @endif
                 </tr>
                 @empty
-                <tr><td colspan="{{ auth()->user()->role === 'staff' ? 9 : 8 }}" class="px-6 py-12 text-center text-gray-400">
+                <tr><td colspan="{{ auth()->user()->role === 'staff' ? 7 : 6 }}" class="px-6 py-12 text-center text-gray-400">
                     <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
                     <p class="font-medium text-gray-500">Belum ada data barang masuk.</p>
                 </td></tr>

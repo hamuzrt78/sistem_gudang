@@ -13,7 +13,7 @@ class StockInController extends Controller
 {
     public function index()
     {
-        $ins = StockIn::with('item', 'user')->latest()->paginate(10);
+        $ins = \App\Models\Pengajuan::with('stockIns.item', 'user')->where('tipe', 'in')->latest()->paginate(10);
         $items = Item::orderBy('nama_barang')->get();
         return view('stock_ins.index', compact('ins', 'items'));
     }
@@ -35,8 +35,28 @@ class StockInController extends Controller
 
         try {
             DB::transaction(function () use ($data, $request) {
+                $prefix = 'KB-' . date('d-m-');
+                $lastPengajuan = \App\Models\Pengajuan::where('kode_pengajuan', 'like', $prefix . '%')->latest('id')->first();
+                $sequence = 1;
+                if ($lastPengajuan) {
+                    $lastSeq = (int) substr($lastPengajuan->kode_pengajuan, -3);
+                    $sequence = $lastSeq + 1;
+                }
+                $kodePengajuan = $prefix . str_pad($sequence, 3, '0', STR_PAD_LEFT);
+
+                $pengajuan = \App\Models\Pengajuan::create([
+                    'kode_pengajuan' => $kodePengajuan,
+                    'tipe' => 'in',
+                    'user_id' => $request->user()->id,
+                    'status' => 'pending_superadmin',
+                    'tanggal' => $data['tanggal_masuk'],
+                    'supplier_tujuan' => $data['supplier'] ?? null,
+                    'keterangan_umum' => $data['keterangan'] ?? null,
+                ]);
+
                 foreach ($data['items'] as $itemData) {
                     StockIn::create([
+                        'pengajuan_id'  => $pengajuan->id,
                         'item_id'       => $itemData['item_id'],
                         'jumlah'        => $itemData['jumlah'],
                         'tanggal_masuk' => $data['tanggal_masuk'],
@@ -54,35 +74,38 @@ class StockInController extends Controller
         }
     }
 
-    public function destroy(StockIn $stockIn)
+    public function destroy(\App\Models\Pengajuan $stockIn) // parameter name $stockIn kept for routing
     {
         // Only allow deletion if still pending (not yet approved)
         if ($stockIn->status === 'approved') {
-            return back()->with('error', 'Transaksi yang sudah disetujui tidak bisa dihapus langsung.');
+            return back()->with('error', 'Pengajuan yang sudah disetujui tidak bisa dihapus langsung.');
         }
 
         try {
             DB::transaction(function () use ($stockIn) {
                 // If somehow approved, reverse stock (safety check)
                 if ($stockIn->status === 'approved') {
-                    $item = $stockIn->item;
-                    if ($item->stok < $stockIn->jumlah) {
-                        throw new \Exception('Stok saat ini kurang dari jumlah yang akan dibatalkan.');
-                    }
-                    $stokSebelum = $item->stok;
-                    $item->stok -= $stockIn->jumlah;
-                    $item->save();
+                    foreach ($stockIn->stockIns as $in) {
+                        $item = $in->item;
+                        if ($item->stok < $in->jumlah) {
+                            throw new \Exception("Stok {$item->nama_barang} saat ini kurang dari jumlah yang akan dibatalkan.");
+                        }
+                        $stokSebelum = $item->stok;
+                        $item->stok -= $in->jumlah;
+                        $item->save();
 
-                    StockMutation::create([
-                        'item_id'     => $item->id,
-                        'tipe_mutasi' => 'rollback-in',
-                        'jumlah'      => $stockIn->jumlah,
-                        'stok_sebelum' => $stokSebelum,
-                        'stok_sesudah' => $item->stok,
-                        'referensi'   => 'Batal IN-' . str_pad($stockIn->id, 5, '0', STR_PAD_LEFT),
-                        'created_by'  => auth()->id(),
-                    ]);
+                        StockMutation::create([
+                            'item_id'     => $item->id,
+                            'tipe_mutasi' => 'rollback-in',
+                            'jumlah'      => $in->jumlah,
+                            'stok_sebelum' => $stokSebelum,
+                            'stok_sesudah' => $item->stok,
+                            'referensi'   => 'Batal ' . $stockIn->kode_pengajuan,
+                            'created_by'  => auth()->id(),
+                        ]);
+                    }
                 }
+                // deletes stock_ins too via cascade
                 $stockIn->delete();
             });
 

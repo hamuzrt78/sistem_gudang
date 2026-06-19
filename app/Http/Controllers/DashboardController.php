@@ -31,8 +31,7 @@ class DashboardController extends Controller
         }
 
         // Pending approvals for pimpinan
-        $pendingInsPimpinan = StockIn::with('item', 'user')->where('status', 'pending_pimpinan')->latest()->get();
-        $pendingOutsPimpinan = StockOut::with('item', 'user')->where('status', 'pending_pimpinan')->latest()->get();
+        $pendingPengajuansPimpinan = \App\Models\Pengajuan::with('user', 'stockIns.item', 'stockOuts.item')->where('status', 'pending_pimpinan')->latest()->get();
 
         return view('dashboard', compact(
             'totalBarang',
@@ -44,8 +43,7 @@ class DashboardController extends Controller
             'dates',
             'inData',
             'outData',
-            'pendingInsPimpinan',
-            'pendingOutsPimpinan'
+            'pendingPengajuansPimpinan'
         ));
     }
 }
